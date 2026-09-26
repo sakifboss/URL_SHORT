@@ -1,0 +1,16 @@
+# Go binaries
+*.exe
+
+# Build output
+bin/
+dist/
+
+# Environment files
+.env
+
+# IDE files
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
