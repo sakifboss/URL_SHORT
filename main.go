@@ -22,6 +22,21 @@ func generateShortCode() string {
 	return string(code)
 }
 
+// sendError sends an error response in JSON format.
+func sendError(w http.ResponseWriter, message string, status int) {
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+
+	response := struct {
+		Error string `json:"error"`
+	}{
+		Error: message,
+	}
+
+	json.NewEncoder(w).Encode(response)
+}
+
 // startServer creates the HTTP server and registers all routes.
 func startServer() {
 
@@ -46,7 +61,7 @@ func startServer() {
 
 		// Only allow POST requests.
 		if r.Method != http.MethodPost {
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			sendError(w, "Method not allowed", http.StatusMethodNotAllowed)
 			return
 		}
 
@@ -58,19 +73,19 @@ func startServer() {
 		// Decode JSON request body.
 		err := json.NewDecoder(r.Body).Decode(&request)
 		if err != nil {
-			http.Error(w, "Invalid JSON", http.StatusBadRequest)
+			sendError(w, "Invalid JSON", http.StatusBadRequest)
 			return
 		}
 
 		// Check if URL was provided.
 		if request.URL == "" {
-			http.Error(w, "URL is required", http.StatusBadRequest)
+			sendError(w, "URL is required", http.StatusBadRequest)
 			return
 		}
 		// Validate the URL.
 		parsedURL, err := url.ParseRequestURI(request.URL)
 		if err != nil || parsedURL.Scheme == "" || parsedURL.Host == "" {
-			http.Error(w, "Invalid URL", http.StatusBadRequest)
+			sendError(w, "Invalid URL", http.StatusBadRequest)
 			return
 		}
 
@@ -108,8 +123,9 @@ func startServer() {
 		originalURL, exists := urls[shortCode]
 
 		// Return 404 if short code does not exist.
+
 		if !exists {
-			http.Error(w, "Short URL not found", http.StatusNotFound)
+			sendError(w, "Short URL not found", http.StatusNotFound)
 			return
 		}
 
