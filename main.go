@@ -6,8 +6,11 @@ import (
 	"fmt"
 	"io/fs"
 	"math/rand"
+	"net"
 	"net/http"
 	"net/url"
+	"sync"
+	"time"
 )
 
 //go:embed frontend
@@ -48,6 +51,16 @@ func startServer() {
 	// Stores short code -> original URL.
 	urls := make(map[string]string)
 
+	// Stores each IP's request count and the start of its 1-minute window.
+	type rateLimit struct {
+		count       int
+		windowStart time.Time
+	}
+	rateLimits := make(map[string]rateLimit)
+
+	// Protects both maps because HTTP handlers can run at the same time.
+	var mu sync.Mutex
+
 	// Create a new router.
 	mux := http.NewServeMux()
 
@@ -71,13 +84,36 @@ func startServer() {
 			return
 		}
 
+		// Get the IP address without the port number.
+		ip, _, err := net.SplitHostPort(r.RemoteAddr)
+		if err != nil {
+			ip = r.RemoteAddr
+		}
+
+		// Start a new 1-minute window when this IP makes its first request
+		// or its previous window has expired.
+		now := time.Now()
+		mu.Lock()
+		limit, exists := rateLimits[ip]
+		if !exists || now.Sub(limit.windowStart) >= time.Minute {
+			limit = rateLimit{count: 1, windowStart: now}
+		} else if limit.count >= 5 {
+			mu.Unlock()
+			sendError(w, "Rate limit exceeded. Try again later.", http.StatusTooManyRequests)
+			return
+		} else {
+			limit.count++
+		}
+		rateLimits[ip] = limit
+		mu.Unlock()
+
 		// Request body structure.
 		var request struct {
 			URL string `json:"url"`
 		}
 
 		// Decode JSON request body.
-		err := json.NewDecoder(r.Body).Decode(&request)
+		err = json.NewDecoder(r.Body).Decode(&request)
 		if err != nil {
 			sendError(w, "Invalid JSON", http.StatusBadRequest)
 			return
@@ -97,6 +133,7 @@ func startServer() {
 		}
 
 		// Generate a unique short code.
+		mu.Lock()
 		shortCode := generateShortCode()
 
 		for {
@@ -111,6 +148,7 @@ func startServer() {
 
 		// Store the URL.
 		urls[shortCode] = request.URL
+		mu.Unlock()
 
 		// Create response.
 		response := struct {
@@ -135,7 +173,9 @@ func startServer() {
 		shortCode := r.URL.Path[len("/short/"):]
 
 		// Find original URL.
+		mu.Lock()
 		originalURL, exists := urls[shortCode]
+		mu.Unlock()
 
 		if !exists {
 			sendError(w, "Short URL not found", http.StatusNotFound)

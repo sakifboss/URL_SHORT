@@ -1,20 +1,20 @@
-# URL Shortener
+# Go URL Shortener
 
-এটি Go দিয়ে তৈরি একটি সহজ URL shortener HTTP server। এটি একটি URL-এর জন্য ৬ অক্ষরের short code তৈরি করে এবং সেই code-এ গেলে মূল URL-এ redirect করে।
+A small URL shortener built with Go's standard library. It generates a six-character short code for a URL and redirects visitors to the original address.
 
-## প্রয়োজনীয়তা
+## Requirements
 
-- Go 1.26.4 বা পরবর্তী সংস্করণ
+- Go 1.26.4 or later
 
-## চালানোর নিয়ম
+## Run the server
 
-প্রজেক্ট ফোল্ডারে গিয়ে চালান:
+From the project directory, run:
 
 ```bash
 go run .
 ```
 
-সার্ভার চালু হলে এটি `http://localhost:8080`-এ অনুরোধ নেবে।
+The server listens at <http://localhost:8080>.
 
 ## API
 
@@ -24,9 +24,9 @@ go run .
 GET /health
 ```
 
-সফল হলে `OK` ফেরত দেয়।
+Returns `OK` when the server is running.
 
-### URL ছোট করা
+### Shorten a URL
 
 ```http
 POST /shorten
@@ -41,22 +41,32 @@ Request body:
 }
 ```
 
-উদাহরণ:
+Example using `curl`:
 
 ```bash
-curl -X POST http://localhost:8080/shorten -H "Content-Type: application/json" -d '{"url":"https://example.com"}'
+curl -X POST http://localhost:8080/shorten \
+  -H "Content-Type: application/json" \
+  -d '{"url":"https://example.com"}'
 ```
 
-Response-এ `short_code` পাওয়া যাবে।
+The response includes a `short_code`, which can be used with the redirect endpoint.
 
-### Short URL ব্যবহার
+### Follow a short URL
 
 ```http
 GET /short/{short_code}
 ```
 
-এটি মূল URL-এ redirect করে। যেমন, short code `abc123` হলে `http://localhost:8080/short/abc123` খুলুন।
+For example, `GET http://localhost:8080/short/abc123` redirects to the original URL associated with `abc123`.
 
-## সীমাবদ্ধতা
+### Rate limit
 
-Short code এবং URL-গুলোর mapping শুধু চলমান server-এর memory-তে রাখা হয়। Server বন্ধ হলে তৈরি করা short URL-গুলো আর থাকবে না।
+The `POST /shorten` endpoint allows up to five requests per IP address in each one-minute window. Further requests during that window receive `429 Too Many Requests` with this response:
+
+```json
+{"error":"Rate limit exceeded. Try again later."}
+```
+
+## Storage
+
+Short-code mappings and rate-limit counts are kept in memory. They are cleared when the server stops.
