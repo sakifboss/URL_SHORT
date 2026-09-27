@@ -1,12 +1,17 @@
 package main
 
 import (
+	"embed"
 	"encoding/json"
 	"fmt"
+	"io/fs"
 	"math/rand"
 	"net/http"
 	"net/url"
 )
+
+//go:embed frontend
+var frontendFiles embed.FS
 
 // generateShortCode creates a random 6-character short code.
 func generateShortCode() string {
@@ -46,10 +51,11 @@ func startServer() {
 	// Create a new router.
 	mux := http.NewServeMux()
 
-	// Root endpoint.
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, "URL Shortener")
-	})
+	frontend, err := fs.Sub(frontendFiles, "frontend")
+	if err != nil {
+		panic(err)
+	}
+	mux.Handle("/", http.FileServer(http.FS(frontend)))
 
 	// Health endpoint.
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
@@ -143,7 +149,7 @@ func startServer() {
 	// Start server.
 	fmt.Println("Server running on http://localhost:8080")
 
-	err := http.ListenAndServe(":8080", mux)
+	err = http.ListenAndServe(":8080", mux)
 
 	if err != nil {
 		fmt.Println("Server error:", err)
