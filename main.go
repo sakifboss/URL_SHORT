@@ -11,6 +11,9 @@ func startServer() {
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "URL Shortener")
 	})
+	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintln(w, "OK")
+	})
 
 	fmt.Println("Server running on http://localhost:8080")
 
