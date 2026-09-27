@@ -5,13 +5,21 @@ import (
 	"net/http"
 )
 
-func main() {
+func startServer() {
+	mux := http.NewServeMux()
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "URL Shortener")
 	})
 
 	fmt.Println("Server running on http://localhost:8080")
 
-	http.ListenAndServe(":8080", nil)
+	err := http.ListenAndServe(":8080", mux)
+	if err != nil {
+		fmt.Println("Server error:", err)
+	}
+}
+
+func main() {
+	startServer()
 }
