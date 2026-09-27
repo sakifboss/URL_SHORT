@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>URL Shortener</title>
+</head>
+
+<body>
+    <main>
+        <h1>URL SHORTENER</h1>
+
+        <form id="shorten-form">
+            <label for="long-url">Enter your long URL</label>
+            <input id="long-url" name="url" type="url" placeholder="https://example.com/very-long-url" required>
+            <button type="submit">Shorten URL</button>
+        </form>
+
+        <section id="result" aria-live="polite" hidden>
+            <h2>Your short URL:</h2>
+            <output id="short-url" for="long-url"></output>
+            <button id="copy-button" type="button">Copy</button>
+        </section>
+
+        <p id="error-message" role="alert" hidden></p>
+    </main>
+</body>
+
+</html>
