@@ -2,6 +2,8 @@
 
 A small URL shortener built with Go's standard library. It generates a six-character short code for a URL and redirects visitors to the original address.
 
+Live demo: <https://url-short-fhzv.onrender.com>
+
 ## Requirements
 
 - Go 1.26.4 or later
