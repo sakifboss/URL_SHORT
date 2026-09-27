@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"net/http"
+	"net/url"
 )
 
 // generateShortCode creates a random 6-character short code.
@@ -64,6 +65,12 @@ func startServer() {
 		// Check if URL was provided.
 		if request.URL == "" {
 			http.Error(w, "URL is required", http.StatusBadRequest)
+			return
+		}
+		// Validate the URL.
+		parsedURL, err := url.ParseRequestURI(request.URL)
+		if err != nil || parsedURL.Scheme == "" || parsedURL.Host == "" {
+			http.Error(w, "Invalid URL", http.StatusBadRequest)
 			return
 		}
 
