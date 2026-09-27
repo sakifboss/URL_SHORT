@@ -3,6 +3,8 @@ const urlInput = document.querySelector("#long-url");
 const submitButton = shortenForm.querySelector('button[type="submit"]');
 const resultSection = document.querySelector("#result");
 const shortUrlOutput = document.querySelector("#short-url");
+const copyButton = document.querySelector("#copy-button");
+const copyStatus = document.querySelector("#copy-status");
 const errorMessage = document.querySelector("#error-message");
 
 shortenForm.addEventListener("submit", async (event) => {
@@ -10,6 +12,7 @@ shortenForm.addEventListener("submit", async (event) => {
 
     resultSection.hidden = true;
     errorMessage.hidden = true;
+    copyStatus.textContent = "";
     submitButton.disabled = true;
     submitButton.textContent = "Shortening...";
 
@@ -44,5 +47,14 @@ shortenForm.addEventListener("submit", async (event) => {
     } finally {
         submitButton.disabled = false;
         submitButton.textContent = "Shorten URL";
+    }
+});
+
+copyButton.addEventListener("click", async () => {
+    try {
+        await navigator.clipboard.writeText(shortUrlOutput.textContent);
+        copyStatus.textContent = "Copied to clipboard.";
+    } catch {
+        copyStatus.textContent = "Copy failed. Select the URL above and copy it manually.";
     }
 });

@@ -141,6 +141,14 @@ button:active {
     background: #e2ece7;
 }
 
+#copy-status {
+    min-height: 1.5em;
+    margin: 10px 0 0;
+    color: #375652;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
 #error-message {
     margin: 24px 0 0;
     padding: 12px 14px;
