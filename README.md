@@ -29,6 +29,22 @@ Open <http://localhost:8080> in your browser. Press `Ctrl+C` in the terminal to 
 ```bash
 docker compose down
 ```
+
+## Deploy to Render
+
+This project can run as a Render web service. In Render, create a new **Web Service** and connect this GitHub repository. Use these settings:
+
+| Setting | Value |
+| --- | --- |
+| Runtime | Go |
+| Build command | `go build -o app .` |
+| Start command | `./app` |
+| Health check path | `/health` |
+
+Render supplies the listening port through the `PORT` environment variable. The server reads this value automatically and binds to all network interfaces.
+
+The app stores short URLs and rate-limit counts in memory. They are lost whenever the service restarts or redeploys. Keep the service to one instance so all requests share the same in-memory data.
+
 ## API
 
 ### Health check
