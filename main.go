@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 )
@@ -21,9 +22,47 @@ func startServer() {
 		fmt.Fprintln(w, "OK")
 	})
 
-	// Shorten endpoint: will be used to create a short URL.
+	// Shorten endpoint: accepts a URL and returns a JSON response.
 	mux.HandleFunc("/shorten", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, "Shorten endpoint")
+
+		// Only allow POST requests.
+		if r.Method != http.MethodPost {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
+		// Request body structure.
+		var request struct {
+			URL string `json:"url"`
+		}
+
+		// Decode JSON request body.
+		err := json.NewDecoder(r.Body).Decode(&request)
+		if err != nil {
+			http.Error(w, "Invalid JSON", http.StatusBadRequest)
+			return
+		}
+
+		// Check if URL was provided.
+		if request.URL == "" {
+			http.Error(w, "URL is required", http.StatusBadRequest)
+			return
+		}
+
+		// Temporary response.
+		response := struct {
+			Message string `json:"message"`
+			URL     string `json:"url"`
+		}{
+			Message: "URL received successfully",
+			URL:     request.URL,
+		}
+
+		// Tell client that response is JSON.
+		w.Header().Set("Content-Type", "application/json")
+
+		// Send JSON response.
+		json.NewEncoder(w).Encode(response)
 	})
 
 	// Start the server on port 8080.
