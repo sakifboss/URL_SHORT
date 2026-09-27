@@ -3,12 +3,28 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"net/http"
 )
 
+// generateShortCode creates a random 6-character short code.
+func generateShortCode() string {
+
+	const characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+	code := make([]byte, 6)
+
+	for i := range code {
+		code[i] = characters[rand.Intn(len(characters))]
+	}
+
+	return string(code)
+}
+
 // startServer creates the HTTP server and registers all routes.
 func startServer() {
-
+	// Stores short code -> original URL.
+	urls := make(map[string]string)
 	// Create a new router for handling HTTP requests.
 	mux := http.NewServeMux()
 
@@ -48,14 +64,20 @@ func startServer() {
 			http.Error(w, "URL is required", http.StatusBadRequest)
 			return
 		}
+		// Generate a unique short code.
+		shortCode := generateShortCode()
 
-		// Temporary response.
+		// Store the URL using the short code.
+		urls[shortCode] = request.URL
+
 		response := struct {
-			Message string `json:"message"`
-			URL     string `json:"url"`
+			Message   string `json:"message"`
+			ShortCode string `json:"short_code"`
+			URL       string `json:"url"`
 		}{
-			Message: "URL received successfully",
-			URL:     request.URL,
+			Message:   "URL shortened successfully",
+			ShortCode: shortCode,
+			URL:       request.URL,
 		}
 
 		// Tell client that response is JSON.
