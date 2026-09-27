@@ -9,6 +9,8 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"os"
+	"strings"
 	"sync"
 	"time"
 )
@@ -84,10 +86,17 @@ func startServer() {
 			return
 		}
 
-		// Get the IP address without the port number.
-		ip, _, err := net.SplitHostPort(r.RemoteAddr)
-		if err != nil {
-			ip = r.RemoteAddr
+		// Render forwards the visitor's IP in X-Forwarded-For.
+		ip := r.Header.Get("X-Forwarded-For")
+		if ip != "" {
+			// The header can contain multiple IPs; the first is the visitor.
+			ip = strings.TrimSpace(strings.Split(ip, ",")[0])
+		} else {
+			// Use the direct connection IP when no proxy header is present.
+			ip, _, err = net.SplitHostPort(r.RemoteAddr)
+			if err != nil {
+				ip = r.RemoteAddr
+			}
 		}
 
 		// Start a new 1-minute window when this IP makes its first request
@@ -186,10 +195,17 @@ func startServer() {
 		http.Redirect(w, r, originalURL, http.StatusFound)
 	})
 
-	// Start server.
-	fmt.Println("Server running on http://localhost:8080")
+	// Render provides the port in the PORT environment variable.
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
 
-	err = http.ListenAndServe(":8080", mux)
+	// Bind on all network interfaces so Render can forward public traffic.
+	address := "0.0.0.0:" + port
+	fmt.Println("Server running on port", port)
+
+	err = http.ListenAndServe(address, mux)
 
 	if err != nil {
 		fmt.Println("Server error:", err)
