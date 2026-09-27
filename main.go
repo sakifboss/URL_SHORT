@@ -23,8 +23,10 @@ func generateShortCode() string {
 
 // startServer creates the HTTP server and registers all routes.
 func startServer() {
+
 	// Stores short code -> original URL.
 	urls := make(map[string]string)
+
 	// Create a new router for handling HTTP requests.
 	mux := http.NewServeMux()
 
@@ -64,12 +66,14 @@ func startServer() {
 			http.Error(w, "URL is required", http.StatusBadRequest)
 			return
 		}
-		// Generate a unique short code.
+
+		// Generate a short code.
 		shortCode := generateShortCode()
 
 		// Store the URL using the short code.
 		urls[shortCode] = request.URL
 
+		// Create JSON response.
 		response := struct {
 			Message   string `json:"message"`
 			ShortCode string `json:"short_code"`
@@ -85,6 +89,25 @@ func startServer() {
 
 		// Send JSON response.
 		json.NewEncoder(w).Encode(response)
+	})
+
+	// Redirect endpoint: redirects a short code to the original URL.
+	mux.HandleFunc("/short/", func(w http.ResponseWriter, r *http.Request) {
+
+		// Get the short code from the URL.
+		shortCode := r.URL.Path[len("/short/"):]
+
+		// Find the original URL.
+		originalURL, exists := urls[shortCode]
+
+		// Return 404 if short code does not exist.
+		if !exists {
+			http.Error(w, "Short URL not found", http.StatusNotFound)
+			return
+		}
+
+		// Redirect to the original URL.
+		http.Redirect(w, r, originalURL, http.StatusFound)
 	})
 
 	// Start the server on port 8080.
