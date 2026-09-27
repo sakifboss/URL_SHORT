@@ -1,0 +1,176 @@
+:root {
+    color-scheme: light;
+    font-family: "Trebuchet MS", "Lucida Sans Unicode", sans-serif;
+    color: #193633;
+    background: #f2f5ef;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    min-width: 320px;
+    min-height: 100vh;
+    margin: 0;
+    background-image: repeating-linear-gradient(0deg,
+            transparent 0,
+            transparent 39px,
+            rgb(25 54 51 / 3%) 40px);
+}
+
+main {
+    width: min(100% - 40px, 560px);
+    margin: 0 auto;
+    padding: 88px 0 64px;
+}
+
+h1 {
+    margin: 0 0 48px;
+    color: #193633;
+    font-size: 30px;
+    font-weight: 800;
+    line-height: 1.2;
+    text-align: center;
+}
+
+h1::after {
+    display: block;
+    width: 42px;
+    height: 4px;
+    margin: 14px auto 0;
+    background: #d75b3f;
+    content: "";
+}
+
+form {
+    display: grid;
+    gap: 12px;
+}
+
+label {
+    color: #375652;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+input,
+button {
+    min-height: 52px;
+    border-radius: 5px;
+    font: inherit;
+}
+
+input {
+    width: 100%;
+    padding: 0 16px;
+    border: 1px solid #9eb3ad;
+    background: #fff;
+    color: #193633;
+    font-size: 16px;
+}
+
+input::placeholder {
+    color: #81938e;
+}
+
+input:focus-visible,
+button:focus-visible {
+    outline: 3px solid #e8a04b;
+    outline-offset: 3px;
+}
+
+button {
+    padding: 0 20px;
+    border: 0;
+    background: #1d6258;
+    color: #fff;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 700;
+    transition: background-color 140ms ease, transform 140ms ease;
+}
+
+form button {
+    margin-top: 8px;
+}
+
+button:hover {
+    background: #154d45;
+}
+
+button:active {
+    transform: translateY(1px);
+}
+
+#result {
+    margin-top: 40px;
+    padding-top: 28px;
+    border-top: 1px solid #c6d2cd;
+    text-align: center;
+}
+
+#result h2 {
+    margin: 0 0 12px;
+    color: #375652;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+#short-url {
+    display: block;
+    overflow-wrap: anywhere;
+    color: #174f47;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 17px;
+    line-height: 1.5;
+}
+
+#copy-button {
+    min-width: 112px;
+    min-height: 44px;
+    margin-top: 16px;
+    border: 1px solid #1d6258;
+    background: transparent;
+    color: #1d6258;
+}
+
+#copy-button:hover {
+    background: #e2ece7;
+}
+
+#error-message {
+    margin: 24px 0 0;
+    padding: 12px 14px;
+    border-left: 3px solid #c84d38;
+    background: #fff0eb;
+    color: #873326;
+    line-height: 1.5;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+@media (max-width: 480px) {
+    main {
+        padding-top: 64px;
+    }
+
+    h1 {
+        margin-bottom: 40px;
+        font-size: 27px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+    }
+}
