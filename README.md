@@ -16,6 +16,19 @@ go run .
 
 The server listens at <http://localhost:8080>.
 
+## Run with Docker Compose
+
+Make sure Docker Desktop is running, then start the app from the project directory:
+
+```bash
+docker compose up --build
+```
+
+Open <http://localhost:8080> in your browser. Press `Ctrl+C` in the terminal to stop the app. To remove the Compose container, run:
+
+```bash
+docker compose down
+```
 ## API
 
 ### Health check
