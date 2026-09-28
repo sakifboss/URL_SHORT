@@ -1,18 +1,18 @@
 package main
 
 import (
-	"embed"
-	"encoding/json"
-	"fmt"
-	"io/fs"
-	"math/rand"
-	"net"
-	"net/http"
-	"net/url"
-	"os"
-	"strings"
-	"sync"
-	"time"
+	"embed" //put frontend files Go binary inside
+	"encoding/json" //JSON read/write
+	"fmt" // for terminal print
+	"io/fs" //embedded filesystem handle
+	"math/rand" // for random short code
+	"net" //find IP address
+	"net/http" // HTTP server
+	"net/url" // URL validation
+	"os" //environment variable
+	"strings" //string manipulation
+	"sync" // concurrent request map protect
+	"time" //rate limit calculation(1 min)
 )
 
 //go:embed frontend
